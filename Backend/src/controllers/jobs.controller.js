@@ -75,7 +75,7 @@ const getJobById = async (req, res) => {
       throw new ApiError(400, "jobId is not provided")
     }
 
-    const job = await Job.findById(jobId).populate("company_id", "logo_url")
+    const job = await Job.findById(jobId).populate("company_id", "logo_url name")
 
     if(!job){
       throw new ApiError(400, "job not found")

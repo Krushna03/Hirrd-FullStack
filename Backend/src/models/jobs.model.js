@@ -32,7 +32,7 @@ const JobSchema = new mongoose.Schema({
    isSaved: {
       type: Boolean,
       default: false
-   }
+   },
 
 }, {timestamps: true})
 

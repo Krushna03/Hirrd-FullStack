@@ -15,11 +15,32 @@ const JobPage = () => {
   const user = useSelector(state => state.auth.userData)
   const [loading, setLoading] = useState(false)
   const [statusLoading, setStatusLoading] = useState(false)
+  const [applications, setApplications] = useState([])
   const [job, setJob] = useState()
   const { jobId } = useParams()
   
-  console.log(user);
-  console.log(job);
+  const userID = user.data?._id;
+  
+  console.log("aPPLICAQTIONS",applications);
+  console.log("User", user);
+  console.log("JOB", job);
+
+
+  const getAppications = async () => {
+    try {
+      const response = await axios.get('/api/v1/application/getApplications', { 
+        params: { userID, jobId } 
+      });
+  
+      if (response) {
+        setApplications(response?.data?.data);
+      }
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
+  
+
 
   const handleStatusChange = async (value) => {
     setStatusLoading(true)
@@ -57,6 +78,7 @@ const JobPage = () => {
       }
     }
     fetchJob()
+    getAppications()
   }, [jobId])
   
 
@@ -130,14 +152,13 @@ const JobPage = () => {
         className="bg-transparent text-white sm:text-lg wmde-markdown"
       />
 
-      {/* {job?.recuriter_id !== user?.data?._id && (
+      {job?.recuriter_id !== user?.data?._id && (
         <ApplyJobDrawer
           job={job}
           user={user}
-          // fetchJob={fnJob}
-          // applied={job?.applications?.find((ap) => ap.candidate_id === user.id)}
+          applied={applications?.find((app) => app.job_id?._id === job?._id)} 
         />
-      )} */}
+      )} 
       
       {/* {job?.applications?.length > 0 && job?.recruiter_id === user?.id && (
         <div className="flex flex-col gap-2">

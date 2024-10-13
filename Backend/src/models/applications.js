@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 
 const applicationSchema = new mongoose.Schema({
@@ -16,11 +16,12 @@ const applicationSchema = new mongoose.Schema({
    },
    status: {
       type: String,
-      enum: ['APPLIED, INTERVIEWING, HIRERED, REJECTED']
+      enum: ['Applied', 'Interviewing', 'Hirered', 'Rejected'],
+      default: "Applied"
    },
    education:{
       type: String,
-      enum: ['NTERMEDIATE, GRADUATE, POST GRADUATE']
+      enum: ['Intermediate', 'Graduate', 'Post Graduate']
    },
    resume: {
       type: String,

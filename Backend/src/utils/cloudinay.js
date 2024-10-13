@@ -44,4 +44,25 @@ const uploadOnCloudinary = async (localFilePath) => {
 };
 
 
-export { uploadOnCloudinary, destroyCloudImage }
+const uploadPDFOnCloudinary = async (localFilePath) => {
+  try {
+    if (!localFilePath) return null;
+
+    const response = await cloudinary.uploader.upload(localFilePath.path, {
+      resource_type: "raw",
+      // folder: 'videoweb',
+    });
+
+    fs.unlinkSync(localFilePath.path);
+    return response;
+
+  } 
+  catch (error) {
+    console.error("Error uploading to Cloudinary", error);
+    fs.unlinkSync(localFilePath.path);
+    return null;
+  }
+};
+
+
+export { uploadOnCloudinary, destroyCloudImage, uploadPDFOnCloudinary }
