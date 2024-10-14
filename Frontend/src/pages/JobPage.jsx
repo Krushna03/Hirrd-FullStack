@@ -4,10 +4,10 @@ import MDEditor from "@uiw/react-md-editor";
 import { Briefcase, DoorClosed, DoorOpen, MapPinIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {ApplyJobDrawer} from "@/components/ApplyJobDrawer";
-import ApplicationCard from "@/components/Applications_Card";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import ApplicationCard from "@/components/Applications_Card";
 
 
 const JobPage = () => {
@@ -16,14 +16,15 @@ const JobPage = () => {
   const [loading, setLoading] = useState(false)
   const [statusLoading, setStatusLoading] = useState(false)
   const [applications, setApplications] = useState([])
+  const [RecruiterApplications, setRecruiterApplications] = useState([])
   const [job, setJob] = useState()
   const { jobId } = useParams()
-  
   const userID = user.data?._id;
   
-  console.log("aPPLICAQTIONS",applications);
-  console.log("User", user);
   console.log("JOB", job);
+  // console.log("applications", RecruiterApplications);
+  // console.log("userID", user);
+
 
 
   const getAppications = async () => {
@@ -34,6 +35,19 @@ const JobPage = () => {
   
       if (response) {
         setApplications(response?.data?.data);
+      }
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
+
+
+  const getRecruiterAppications = async () => {
+    try {
+      const response = await axios.get('/api/v1/application/getRecruiterApplications');
+  
+      if (response) {
+        setRecruiterApplications(response?.data?.data);
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -79,6 +93,7 @@ const JobPage = () => {
     }
     fetchJob()
     getAppications()
+    getRecruiterAppications()
   }, [jobId])
   
 
@@ -101,7 +116,7 @@ const JobPage = () => {
           <MapPinIcon /> {job?.location}
         </div>
         <div className="flex gap-2">
-          <Briefcase /> {job?.applications?.length} Applicants
+          <Briefcase /> {applications?.length} Applicants
         </div>
         <div className="flex gap-2">
           {job?.iOpen ? (
@@ -152,7 +167,7 @@ const JobPage = () => {
         className="bg-transparent text-white sm:text-lg wmde-markdown"
       />
 
-      {job?.recuriter_id !== user?.data?._id && (
+      {job?.recuriter_id !== user?.data?._id && user?.data?.role !== 'recruiter' && (
         <ApplyJobDrawer
           job={job}
           user={user}
@@ -160,16 +175,16 @@ const JobPage = () => {
         />
       )} 
       
-      {/* {job?.applications?.length > 0 && job?.recruiter_id === user?.id && (
+      {RecruiterApplications?.length > 0 && job?.recuriter_id === userID && (
         <div className="flex flex-col gap-2">
           <h2 className="font-bold mb-4 text-xl ml-1">Applications</h2>
-          {job?.applications.map((application) => {
+          {RecruiterApplications.map((application) => {
             return (
-              <ApplicationCard key={application.id} application={application} />
+              <ApplicationCard key={application._id} application={application}/>
             );
           })}
         </div>
-      )} */}
+      )}
     </div>
   );
 };

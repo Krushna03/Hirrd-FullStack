@@ -3,7 +3,6 @@ import { Application } from "../models/applications.js";
 import { uploadPDFOnCloudinary } from "../utils/cloudinay.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Job } from "../models/jobs.model.js";
 
 
 
@@ -102,5 +101,39 @@ const getApplications = async (req, res) => {
 
 
 
+const getRecruiterApplications = async (req, res) => {
+    const applications = await Application.find()
 
-export { createApplication, getApplications }
+    if (!applications) {
+      throw new ApiError(400, "Applications not found");
+    }
+
+    return res.status(200).json(new ApiResponse(200, applications, "Applications fetched successfully"));
+}
+
+
+
+const getAppliedJobs = async (req, res) => {
+    const { userID } = req.query
+
+    if (!userID) {
+      throw new ApiError(400, "userID not found");
+    }
+
+    const appliedJobs = await Application.find({ candidate_id: userID }).populate({
+         path: 'job_id',
+         populate: {
+            path: 'company_id',
+            select: 'name logo_url'
+         }
+        })
+
+    if(!appliedJobs) {
+      throw new ApiError(400, "appliedJobs not found");
+    }
+
+    return res.status(200).json(new ApiResponse(200, appliedJobs, "appliedJobs fetched successfully"));
+}
+
+
+export { createApplication, getApplications, getRecruiterApplications, getAppliedJobs }

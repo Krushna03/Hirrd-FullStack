@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 
-const JobCard = ({ job, isMyJob=false, savedInit, onJobSaved=()=>{} }) => {
+const JobCard = ({ job, isMyJob=false, savedInit, onJobSaved=()=>{}, onJobDeleted=()=>{} }) => {
 
    const [laoding, setLoading] = useState(false)
    const [saved, setSaved] = useState(savedInit)
@@ -61,9 +61,29 @@ const handleSavedJobs = async () => {
     }
 
 
+    const handleDeleteJob = async () => {
+        setLoading(true)
+        try {
+          const response = await axios.delete(`/api/v1/job/deleteJob?jobID=${jobID}`)
+          if (response) {
+             onJobDeleted(jobID);
+          }
+        } catch (error) {
+           console.log(error,"Error deleting the job");
+        }
+        finally {
+         setLoading(false)
+        }
+    }
+
+
    useEffect(() => {
       setSaved(savedInit)
    }, [savedInit])
+
+   if (laoding) {
+      return <BarLoader className="mt-4" width={"100%"} color="#36d7b7" />
+   }
 
 
   return (
@@ -80,7 +100,7 @@ const handleSavedJobs = async () => {
                 fill='red'
                 size={18}
                 className='text-red-300 cursor-pointer'
-               //  onClick={handleDeleteJob}
+                onClick={handleDeleteJob}
               />
             )}
          </CardTitle>
@@ -98,8 +118,7 @@ const handleSavedJobs = async () => {
           </div>
           
           <hr />
-          {/* {job?.description.substring(0, job?.description.indexOf("."))} */}
-          {job?.description}
+          {job?.description.substring(0, job?.description.indexOf("."))}
        </CardContent>
 
        <CardFooter className="flex gap-2">

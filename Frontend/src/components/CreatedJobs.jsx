@@ -3,21 +3,25 @@ import { BarLoader } from "react-spinners";
 import JobCard from "./JobCard";
 import { useEffect } from "react";
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 
-const CreateJobs = () => {
+const CreatedJobs = () => {
 
   const [loading, setLoading] = useState(false)
   const [createdJobs, setCreatedJobs] = useState([])
-
-  const getJobs = async () => {
+  const user = useSelector(state => state.auth.userData);
+  const userID = user?.data?._id
+  
+  
+  useEffect(() => {
+  const getMyJobs = async () => {
     setLoading(true)
      try {
-      const fetchedJobs = await axios.get('api/v1/job/getJobs')
+      const response = await axios.get(`/api/v1/job/getMyJobs?userID=${userID}`)
  
-      console.log(fetchedJobs);
-      if (fetchedJobs) {
-         setCreatedJobs(fetchedJobs.data)
+      if (response) {
+         setCreatedJobs(response.data?.data)
       }
      } 
      catch (error) {
@@ -27,26 +31,18 @@ const CreateJobs = () => {
        setLoading(false)
      }
   }
-
-    useEffect(() => {
-      getJobs()
-    }, [])
+      getMyJobs()
+  }, [])
 
 
-  // const { user } = useUser();
+  const handleJobDeleted = (deletedJobId) => {
+    setCreatedJobs((prevJobs) => prevJobs.filter(job => job._id !== deletedJobId));
+  };
 
-  // const {
-  //   loading: loadingCreatedJobs,
-  //   data: createdJobs,
-  //   fn: fnCreatedJobs,
-  // } = UseFetch(getMyJobs, {
-  //   recruiter_id: user.id,
-  // });
 
-  // useEffect(() => {
-  //   fnCreatedJobs();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  if (loading) {
+    return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
+  }
 
 
   return (
@@ -61,8 +57,8 @@ const CreateJobs = () => {
                 <JobCard
                   key={job._id}
                   job={job}
-                  // onJobAction={fnCreatedJobs}
-                  // isMyJob
+                  onJobDeleted={handleJobDeleted}
+                  isMyJob
                 />
               );
             })
@@ -75,4 +71,4 @@ const CreateJobs = () => {
   );
 };
 
-export default CreateJobs;
+export default CreatedJobs;

@@ -121,6 +121,27 @@ const getJobsBySearch = async (req, res) => {
 
 
 
+
+const getMyJobs = async (req, res) => {
+     const { userID } = req.query;
+
+     if (!userID) {
+      throw new ApiError(404, "userID not found")
+     }
+
+     const myJobs = await Job.find({ recuriter_id: userID }).populate("company_id")
+
+     if (!myJobs) {
+        throw new ApiError(404, "myJobs not found")
+     }
+
+     return res.status(201)
+              .json(new ApiResponse(200, myJobs, "My-Jobs fetched successfully"))
+}
+
+
+
+
 const updateJobStatus = async (req, res) => {
     const { jobId } = req.params;
     const { iOpen } = req.body;
@@ -266,4 +287,22 @@ const unSaveJob = async (req, res) => {
 
 
 
-export { createJob, getJobs, getJobById, getJobsBySearch, updateJobStatus, getSavedJobs, CreateSavedJob, unSaveJob }
+const deleteJob = async (req, res) => {
+     const { jobID } = req.query;
+
+     if (!isValidObjectId(jobID)) {
+      throw new ApiError(400, "jobID not unSaved")
+     }
+
+     const deletedJob = await Job.findByIdAndDelete(jobID)
+     
+    if (!deleteJob) {
+      throw new ApiError(400, "deleteJob facing error")
+    }
+     
+    res.status(200)
+       .json(new ApiResponse(201, deleteJob, "Job deleted successFully"))
+}
+
+
+export { createJob, getJobs, getJobById, getJobsBySearch, getMyJobs,updateJobStatus, getSavedJobs, CreateSavedJob, unSaveJob, deleteJob }
