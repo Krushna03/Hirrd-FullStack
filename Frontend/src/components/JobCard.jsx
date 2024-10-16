@@ -18,7 +18,7 @@ const JobCard = ({ job, isMyJob=false, savedInit, onJobSaved=()=>{}, onJobDelete
    const jobID = job?._id
 
 
-const handleSavedJobs = async () => {
+   const handleSavedJobs = async () => {
    if (saved === true) {
       setLoading(true)
          try {
@@ -81,9 +81,6 @@ const handleSavedJobs = async () => {
       setSaved(savedInit)
    }, [savedInit])
 
-   if (laoding) {
-      return <BarLoader className="mt-4" width={"100%"} color="#36d7b7" />
-   }
 
 
   return (

@@ -12,26 +12,19 @@ import ApplicationCard from "@/components/Applications_Card";
 
 const JobPage = () => {
 
-  const user = useSelector(state => state.auth.userData)
   const [loading, setLoading] = useState(false)
   const [statusLoading, setStatusLoading] = useState(false)
   const [applications, setApplications] = useState([])
-  const [RecruiterApplications, setRecruiterApplications] = useState([])
   const [job, setJob] = useState()
   const { jobId } = useParams()
+  const user = useSelector(state => state.auth.userData)
   const userID = user.data?._id;
   
-  console.log("JOB", job);
-  // console.log("applications", RecruiterApplications);
-  // console.log("userID", user);
-
 
 
   const getAppications = async () => {
     try {
-      const response = await axios.get('/api/v1/application/getApplications', { 
-        params: { userID, jobId } 
-      });
+      const response = await axios.get(`/api/v1/application/getApplications?jobId=${jobId}`);
   
       if (response) {
         setApplications(response?.data?.data);
@@ -40,20 +33,6 @@ const JobPage = () => {
       console.error("Error fetching applications:", error);
     }
   };
-
-
-  const getRecruiterAppications = async () => {
-    try {
-      const response = await axios.get('/api/v1/application/getRecruiterApplications');
-  
-      if (response) {
-        setRecruiterApplications(response?.data?.data);
-      }
-    } catch (error) {
-      console.error("Error fetching applications:", error);
-    }
-  };
-  
 
 
   const handleStatusChange = async (value) => {
@@ -93,7 +72,6 @@ const JobPage = () => {
     }
     fetchJob()
     getAppications()
-    getRecruiterAppications()
   }, [jobId])
   
 
@@ -171,16 +149,16 @@ const JobPage = () => {
         <ApplyJobDrawer
           job={job}
           user={user}
-          applied={applications?.find((app) => app.job_id?._id === job?._id)} 
+          applied={applications?.find((app) => app.candidate_id === user?.data?._id)} 
         />
       )} 
       
-      {RecruiterApplications?.length > 0 && job?.recuriter_id === userID && (
+      {applications?.length > 0 && job?.recuriter_id === userID && (
         <div className="flex flex-col gap-2">
           <h2 className="font-bold mb-4 text-xl ml-1">Applications</h2>
-          {RecruiterApplications.map((application) => {
+          {applications.map((application) => {
             return (
-              <ApplicationCard key={application._id} application={application}/>
+              <ApplicationCard key={application._id} application={application} job={job}/>
             );
           })}
         </div>

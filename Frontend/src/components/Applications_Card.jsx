@@ -4,32 +4,44 @@ import { BarLoader } from "react-spinners";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const ApplicationCard = ({ application, job }) => {
     
     const [loading, setLoading] = useState(false)
+    const [status, setStatus] = useState(application?.status);
     const user = useSelector(state => state.auth.userData)
     const isCandidate = user?.data?.role === 'candidate'
+    const jobID = job?._id
+    
+    console.log(application?.resume);
 
-    // console.log(job);
+    const handleDownload = () => {
+        const link = document.createElement("a");
+        link.href = application?.resume;
+        link.target = "_blank";
+        link.click();
+    };
 
-  const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = application?.resume;
-    link.target = "_blank";
-    link.click();
-  };
+        
+    const handleStatusChange = async (status) => {
+      setLoading(true)
+      try {
+        const response = await axios.put(`/api/v1/application/changeApplicationStatus?jobID=${jobID}&status=${status}`);
+        
+        if (response) {
+          console.log(response.data?.data?.status);
+          setStatus(response.data?.data?.status)
+        }
+        
+      } catch (error) {
+         console.error("Failed to update status:", error);
+      }
+      finally {
+        setLoading(false)
+      }              
+   }
 
-  // const { loading: loadingHiringStatus, fn: fnHiringStatus } = useFetch(
-  //   updateApplicationStatus,
-  //   {
-  //     job_id: application.job_id,
-  //   }
-  // );
-
-  // const handleStatusChange = (status) => {
-  //   fnHiringStatus(status);
-  // };
 
   return (
     <Card>
@@ -73,17 +85,17 @@ const ApplicationCard = ({ application, job }) => {
           </span>
         ) : (
           <Select
-            // onValueChange={handleStatusChange}
-            value={application?.status}
+             defaultValue={status}
+             onValueChange={handleStatusChange}
           >
             <SelectTrigger className="w-52">
               <SelectValue placeholder="Application Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="applied">Applied</SelectItem>
-              <SelectItem value="interviewing">Interviewing</SelectItem>
-              <SelectItem value="hired">Hired</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="Applied">Applied</SelectItem>
+              <SelectItem value="Interviewing">Interviewing</SelectItem>
+              <SelectItem value="Hired">Hired</SelectItem>
+              <SelectItem value="Rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
         )}

@@ -20,52 +20,7 @@ const JobListing = () => {
   const [savedJob, setSavedJob] = useState([])
   const user = useSelector(state => state.auth.userData)
 
-  const userID = user.data?._id;
-  
-
-  //  useEffect(() => {
-  //   const getSavedJob = async () => {
-  //     setJobLoading(true)
-  //     try {
-  //       const response = await axios.get('/api/v1/job/getSavedJobs', {
-  //         params: { userID }
-  //       })
-  //       if (response.data.data) {
-  //         setSavedJob(response.data.data);
-  //       }
-  //     } 
-  //     catch (error) {
-  //       console.log(error, "Error fetching saved Jobs");
-  //     }
-  //     finally {
-  //       setJobLoading(false)
-  //     }
-  //   }
-  //   getSavedJob()
-  //  },[])
-
-
-  // const getJobs = async () => {
-  //   setJobLoading(true)
-  //   try {
-  //     const fetchedJobs = await axios.get('/api/v1/job/getJobs')
- 
-  //     if (fetchedJobs?.data?.data) {
-  //       const jobsWithSavedStatus = fetchedJobs.data.data.map(job => ({
-  //         ...job,
-  //         isSaved: savedJob.some(saved => saved._id === job._id || saved.job_id === job._id)
-  //       }));
-  //       setJobs(jobsWithSavedStatus);
-  //     }
-  //   } 
-  //   catch (error) {
-  //     console.log(error, "Error fetching Jobs");
-  //   }
-  //   finally {
-  //     setJobLoading(false)
-  //   }
-  // }
-
+   const userID = user.data?._id;
 
    const getCompanies = async () => {
      try {

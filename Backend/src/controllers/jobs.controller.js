@@ -15,25 +15,6 @@ const createJob = async (req, res) => {
       throw new ApiError(404, "title, description, location, requirement, company_Name is not provided ") 
      }
 
-    // if (!title) {
-    //   throw new ApiError(404, "title is not provided ") 
-    // }
-    // if (!description) {
-    //   throw new ApiError(404, "description is not provided ") 
-    // }
-    // if (!location) {
-    //   throw new ApiError(404, "location is not provided ") 
-    // }
-    // if (!requirement) {
-    //   throw new ApiError(404, "requirement is not provided ") 
-    // }
-    // if (!company_Name) {
-    //   throw new ApiError(404, "name is not provided ") 
-    // }
-    // if (!userID) {
-    //   throw new ApiError(404, "userID is not provided ") 
-    // }
-
      const company = await Company.findOne({ name: company_Name})
     
      const job = await Job.create({
@@ -66,6 +47,7 @@ const getJobs = async (req, res) => {
     return res.status(201)
               .json(new ApiResponse(200, jobs, "Jobs fetched successfully"))
 }
+
 
 
 const getJobById = async (req, res) => {
@@ -224,7 +206,6 @@ const CreateSavedJob = async (req, res) => {
 
 
 
-
 const getSavedJobs = async (req, res) => {
   const { userID } = req.query;
    
@@ -253,6 +234,7 @@ const getSavedJobs = async (req, res) => {
   res.status(200)
      .json(new ApiResponse(201, savedJobs, "Job saved successFully"))
 }
+
 
 
 const unSaveJob = async (req, res) => {

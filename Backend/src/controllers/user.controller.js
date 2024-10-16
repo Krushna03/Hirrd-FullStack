@@ -68,8 +68,6 @@ const registerUser = async (req, res) => {
                200, 
                {
                   createdUser, 
-                  accessToken, 
-                  refreshToken, 
                },
               'User registered sucessfully'
          )

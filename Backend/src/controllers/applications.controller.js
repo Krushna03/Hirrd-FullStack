@@ -8,7 +8,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createApplication = async ( req, res) => {
      const {name, experience, skills, education, jobID, userID} = req.body
-    //  const userID = req.user?._id
 
      if (!name) {
       throw new ApiError(400, "name is not provided")
@@ -53,20 +52,6 @@ const createApplication = async ( req, res) => {
      
      const result = await Application.findById(applied._id).select("-accessToken -refreshToken");
 
-
-    //  const job = await Job.findById(jobID);
-    //   if (!job) {
-    //     throw new ApiError(404, "Job not found");
-    //   }
-    //   if (!Array.isArray(job.applications)) {
-    //     job.applications = []; // Initialize as an empty array if undefined
-    //   }
-    //   // 4. Push the application ID to the job's applications array
-    //   job.applications.push(result._id);
-    //   // 5. Save the job after modifying the applications array
-    //   await job.save();
-
-
      if (!result) {
        throw new ApiError(400, "applied not working")
      }
@@ -77,26 +62,21 @@ const createApplication = async ( req, res) => {
 
 
 
-
 const getApplications = async (req, res) => {
-  const { userID, jobId } = req.query; 
+  const { jobId } = req.query; 
 
-  if (!userID || !isValidObjectId(userID)) {
-    throw new ApiError(400, "Invalid userID provided");
+  if (!jobId || !isValidObjectId(jobId)) {
+    throw new ApiError(400, "Invalid jobId provided");
   }
 
-  let query = { candidate_id: userID };
-  if (jobId && isValidObjectId(jobId)) {
-    query.job_id = jobId;
+  const applications = await Application.find({job_id: jobId}).populate('job_id');
+
+  if (applications.length === 0) {
+    return res.status(404).json(new ApiResponse(404, [], "0 applications found"));
   }
 
-  const applications = await Application.find(query).populate('job_id');
-
-  if (!applications.length) {
-    return res.status(404).json(new ApiResponse(404, [], "No applications found"));
-  }
-
-  return res.status(200).json(new ApiResponse(200, applications, "Applications fetched successfully"));
+  return res.status(200)
+            .json(new ApiResponse(200, applications, "Applications fetched successfully"));
 };
 
 
@@ -136,4 +116,34 @@ const getAppliedJobs = async (req, res) => {
 }
 
 
-export { createApplication, getApplications, getRecruiterApplications, getAppliedJobs }
+const changeApplicationStatus = async (req, res) => {
+     const { jobID } = req.query;
+     const { status } = req.query;
+
+     if (!isValidObjectId(jobID)) {
+      throw new ApiError(400, "jobID not found");
+     }
+     if (!status) {
+       throw new ApiError(400, "status not found");
+     }
+
+     const application = await Application.findOneAndUpdate({job_id: jobID}, 
+        { 
+           $set: {
+             status: status
+           }  
+        }, 
+        { 
+          new: true 
+        }
+     )
+
+     if(!application){
+       throw new ApiError(400, "application status not chnaged");
+     }
+
+     return res.status(200).json(new ApiResponse(200, application, "appliedStatus changed successfully"));
+}
+
+
+export { createApplication, getApplications, getRecruiterApplications, getAppliedJobs, changeApplicationStatus }
