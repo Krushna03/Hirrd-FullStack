@@ -4,10 +4,24 @@ import cors from "cors"
 
 const app = express()
 
+
 app.use(cors({
-   origin: 'http://localhost:5173'|| process.env.CORS_ORIGIN,
-   credentials: true
-}))
+    origin: 'https://frontend-hirrd.vercel.app', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization',
+        'X-Requested-With',
+        'Accept',
+        'Origin'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200,
+    exposedHeaders: ['Set-Cookie']  
+}));
+
+
+
 
 app.use(express.json({ limit: '20kb' }))
 

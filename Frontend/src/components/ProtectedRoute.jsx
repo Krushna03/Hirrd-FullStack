@@ -15,9 +15,16 @@ const ProtectedRoute = ({ children }) => {
   const userData = useSelector((state) => state.auth.userData)
 
   useEffect(() => {
-    const getCurrentUser = async () => {
-      try {
-        const response = await axios.get("/api/v1/users/currentUser");
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      const getCurrentUser = async () => {
+        try {
+          const response = await axios.get("https://hirrd-backend.vercel.app/api/v1/users/currentUser", {
+          headers: { Authorization: `Bearer ${JSON.parse(token)}` },
+        },{
+          withCredentials: true 
+        });
         
         if (response) {
           setUser(response.data);
@@ -25,12 +32,16 @@ const ProtectedRoute = ({ children }) => {
         }
       } 
       catch (error) {
-        console.error("Error while getting user:", error);
+        console.error("Error while getting user:", error.response ? error.response.data : error.message);
         dispatch(logout());
       }
-    };
+    }
     getCurrentUser()
-  }, [])
+  }
+  else {
+     console.log("No token is available");
+  }
+  }, [dispatch])
 
    if (!user && !authStatus) {
       return <Navigate to="/?sign-in=true" />

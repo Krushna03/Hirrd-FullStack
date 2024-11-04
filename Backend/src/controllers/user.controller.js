@@ -1,6 +1,10 @@
+import {SavedJob} from '../models/SavedJobs.model.js'
 import { User } from '../models/user.model.js'
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { Application } from '../models/applications.js'
+import { isValidObjectId } from 'mongoose'
+import { Job } from '../models/jobs.model.js'
 
 
 const generateAccessAndRefreshTokens = async (userID) => {
@@ -25,8 +29,6 @@ const generateAccessAndRefreshTokens = async (userID) => {
 const registerUser = async (req, res) => {
    const { username, email, password} = req.body;
 
-   console.log(username);
-   console.log(req.body);
 
    if ([username, email, password].some((filed) => filed?.trim() === "")) {
     throw new ApiError(400, "All fields are required") 
@@ -56,7 +58,8 @@ const registerUser = async (req, res) => {
 
   const options = {
    httpOnly: true,
-   secure: true
+   secure: true,
+   sameSite: 'none',
 }
 
   return res
@@ -68,12 +71,12 @@ const registerUser = async (req, res) => {
                200, 
                {
                   createdUser, 
+                  accessToken
                },
               'User registered sucessfully'
          )
    )
 }
-
 
 
 
@@ -102,7 +105,8 @@ const signInUser = async (req, res) => {
 
     const options = {
       httpOnly: true,
-      secure: true
+      secure: true,
+      sameSite: 'none',
   }
 
   return res.status(200)
@@ -122,6 +126,8 @@ const signInUser = async (req, res) => {
 }
 
 
+
+
 const logoutUser = async ( req, res ) => {
     await User.findByIdAndUpdate(
       req.user._id,
@@ -137,7 +143,8 @@ const logoutUser = async ( req, res ) => {
 
     const options = {
       httpOnly: true,
-      secure: true
+      secure: true,
+      sameSite: 'none',
    }
 
     return res.status(200)
@@ -149,15 +156,67 @@ const logoutUser = async ( req, res ) => {
 }
 
 
-const getCurrentUser = async(req, res) => {
-   const user = await req.user.populate('savedJobs');
 
-   return res
-          .status(200)
-          .json(
-            new ApiResponse(200, user, "User fetched successfully")
-          )
+
+const getCurrentUser = async (req, res) => {
+   const user = req.user;
+
+   return res.status(200)
+             .json(
+               new ApiResponse(200, user, "User fetched successfully")
+             )
 }
+
+
+
+const getUserDeatils = async (req, res) => {
+   const { userID } = req.query
+
+   if (!isValidObjectId(userID)) {
+      throw new ApiError(404, "user not found")
+   }
+   
+   // const savedJobs = await SavedJob.find({ user_id: userID })
+
+   const userApplications = await Application.find({ candidate_id: userID})
+
+   // if (!savedJobs) {
+   //    throw new ApiError(404, "savedJobs not found")
+   // }
+   if (!userApplications) {
+      throw new ApiError(404, "savedJobs not found")
+   }
+
+   return res.status(200)
+             .json(
+               new ApiResponse(200, { userApplications}, "User details fetched successfully")
+             )
+}
+
+
+
+const getRecruiterDetails = async (req, res) => {
+   const { userID } = req.query;
+ 
+   if (!isValidObjectId(userID)) {
+     throw new ApiError(404, "User not found");
+   }
+ 
+   const myJobs = await Job.find({ recuriter_id: userID });
+ 
+   if (!myJobs || myJobs.length === 0) {
+     throw new ApiError(404, "No jobs found for this recruiter");
+   }
+ 
+   const jobIds = myJobs.map((job) => job._id);
+ 
+   const applications = await Application.find({ job_id: { $in: jobIds } });
+ 
+   return res.status(200)
+             .json(new ApiResponse(200, { myJobs, applications }, "User details fetched successfully")
+           );
+ };
+ 
 
 
 const addUserRole = async (req, res) => {
@@ -185,4 +244,4 @@ const addUserRole = async (req, res) => {
 
 
 
-export { registerUser, signInUser, logoutUser, getCurrentUser, addUserRole }
+export { registerUser, signInUser, logoutUser, getCurrentUser, getUserDeatils,addUserRole, getRecruiterDetails }

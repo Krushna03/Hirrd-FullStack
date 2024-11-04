@@ -24,7 +24,9 @@ const JobListing = () => {
 
    const getCompanies = async () => {
      try {
-      const response = await axios.get("/api/v1/company/getCompanies")
+      const response = await axios.get("https://hirrd-backend.vercel.app/api/v1/company/getCompanies", {
+        withCredentials: true 
+    })
 
       if (response) {
         setCompanies(response.data?.data)
@@ -37,10 +39,12 @@ const JobListing = () => {
 
    const handleSearch = async (e) => {
     e.preventDefault()
+    setJobLoading(true)
     try {
-      const response = await axios.get('/api/v1/job/getJobsBySearch', {
+      const response = await axios.get('https://hirrd-backend.vercel.app/api/v1/job/getJobsBySearch', {
         params: { title, location, company_Name },
-      });
+        withCredentials: true 
+    });
 
       if (response?.data?.data) {
         const searchedJobsWithSavedStatus = response.data.data.map(job => ({
@@ -52,6 +56,9 @@ const JobListing = () => {
     } 
     catch (error) {
       console.log(error, "Error while fetching the searched jobs");
+    }
+    finally{
+       setJobLoading(false)
     }
   }
 
@@ -67,15 +74,21 @@ const JobListing = () => {
     const initializeData = async () => {
       setJobLoading(true);
       try {
-        const savedResponse = await axios.get('/api/v1/job/getSavedJobs', {
-          params: { userID }
-        });
+        const savedResponse = await axios.get(
+          `https://hirrd-backend.vercel.app/api/v1/job/getSavedJobs`, { 
+            params: { userID },
+            withCredentials: true 
+          }
+        );
+
         if (savedResponse.data.data) {
           setSavedJob(savedResponse.data.data);
         }
         
         await getCompanies();
-        const jobsResponse = await axios.get('/api/v1/job/getJobs');
+        const jobsResponse = await axios.get('https://hirrd-backend.vercel.app/api/v1/job/getJobs', {
+          withCredentials: true 
+      });
         
         if (jobsResponse?.data?.data) {
           const jobsWithSavedStatus = jobsResponse.data.data.map(job => ({

@@ -21,14 +21,17 @@ export default function SignIn({ setShowRegister, setShowSignin }) {
 
   const signIn = async (data) => {
     try {
-      const signin = await axios.post("/api/v1/users/signIn", data)
-  
+      const signin = await axios.post("https://hirrd-backend.vercel.app/api/v1/users/signIn", data, {
+        withCredentials: true 
+    });
+    
       if (signin) {
         dispatch(login({ userData : signin.data }))
         navigate(0)
       }
-
-    } catch (error) {
+      localStorage.setItem('token', JSON.stringify(signin?.data?.data?.accessToken))
+    } 
+    catch (error) {
       console.log("Error in sigin", error);
     }
     finally {
@@ -95,16 +98,16 @@ export default function SignIn({ setShowRegister, setShowSignin }) {
               }
             </Button>
 
-            <div className="relative">
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-800"></span>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-black px-2 text-gray-300">Or continue with</span>
               </div>
-            </div>
+            </div> */}
 
-            <Button 
+            {/* <Button 
               type="button"
               variant="outline" 
               className="w-full bg-gray-900 text-white border-gray-700 hover:bg-gray-800 transition-colors duration-300"
@@ -116,16 +119,16 @@ export default function SignIn({ setShowRegister, setShowSignin }) {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
                  Sign in with Google
-            </Button>
+            </Button> */}
             
-            <div className="text-center text-sm">
+            <div className="text-center text-base">
               Don't have an account?{" "}
               <button 
                 onClick={() => {
                   setShowSignin(false);
                   setShowRegister(true);
                 }}
-                className="text-blue-400 ml-1 font-bold text-sm mt-2 hover:underline"
+                className="text-blue-400 ml-1 font-bold text-base mt-2 hover:underline"
               >
                 Sign up
               </button>

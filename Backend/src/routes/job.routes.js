@@ -14,7 +14,7 @@ router.route('/getJobs').get(getJobs)
 
 router.route('/getJobsBySearch').get(getJobsBySearch)
 
-router.route('/getJobById/:jobId').get(getJobById)
+router.route('/getJobById').get(getJobById)
 
 router.route('/getJobById/:jobId/updateJobStatus').patch(updateJobStatus)
 

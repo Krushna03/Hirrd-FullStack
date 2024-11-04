@@ -8,6 +8,7 @@ import { logout } from "@/context/authSlice"
 import { Link, useNavigate } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import SignOut from "@/loaders/SignOut"
+import { useSelector } from "react-redux"
 
 
 export default function User() {
@@ -16,22 +17,34 @@ export default function User() {
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const user = useSelector(state => state.auth.userData);
 
   const registeredUser = JSON.parse(localStorage.getItem('authToken'));
 
   let userInitial = '';
-  if (registeredUser.data?.username) {
-    userInitial = registeredUser.data?.username.charAt(0).toUpperCase();
+  if (registeredUser?.data?.username) {
+    userInitial = registeredUser?.data?.username.charAt(0).toUpperCase();
   }
 
+  const avatarColor = user?.data?.role === 'candidate' ? 'bg-blue-700' : 'bg-red-700';
+  const isCandidate = user?.data?.role === 'candidate' ? 'Applications' : 'Jobs'
+ 
+  const token = localStorage.getItem("token");
 
   const logoutHandler = async () => {
     setLoading(true)
     try {
-      const response = await axios.post('/api/v1/users/logout')
-      if (response) {
-        navigate(0)
+      const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/users/logout', 
+        {
+          headers: { Authorization: `Bearer ${JSON.parse(token)}`},
+          withCredentials: true,
+        }
+      )
+
+      if (response.status === 200) {
         dispatch(logout())
+        localStorage.removeItem('token')
+        navigate('/')
       }
     } catch (error) {
       console.log("logout error", error);
@@ -46,10 +59,10 @@ export default function User() {
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           
-          <Button variant='ghost' className="relative h-12 w-12 rounded-full p-0">
-            <Avatar className="h-12 w-12">
+          <Button variant='ghost' className={`${avatarColor} relative h-12 w-12 rounded-full p-0`}>
+            <Avatar className={`h-12 w-12 ${avatarColor}`}>
               <AvatarFallback className="text-2xl font-semibold text-white">{userInitial}</AvatarFallback>
-            </Avatar>
+            </Avatar>   
           </Button>
 
         </DropdownMenuTrigger>
@@ -57,17 +70,17 @@ export default function User() {
         <DropdownMenuContent 
           className="user-card bg-dark-gray text-gray-300 rounded-xl shadow-lg p-0 overflow-hidden" align="end" 
         >
-          <div className="bg-dark-gray flex items-center gap-3 p-4 border-bottom border-btm">
-            <Avatar className="h-12 w-12">
+          <div className="flex items-center gap-3 p-4 border-bottom border-btm">
+            <Avatar className={`h-12 w-12 ${avatarColor}`}>
               <AvatarFallback className="text-3xl font-semibold text-white">{userInitial}</AvatarFallback>
             </Avatar>
 
             <div className="flex flex-col">
               <p className="font-semibold text-base text-white">
-              {userInitial + registeredUser.data?.username?.slice(1)}
+              {userInitial + registeredUser?.data?.username?.slice(1)}
               </p>
               <p className="text-sm text-gray-300">
-                {registeredUser.data?.email}
+                {registeredUser?.data?.email}
               </p>
             </div>
           </div>
@@ -75,7 +88,12 @@ export default function User() {
           <div className="py-1">
             <DropdownMenuItem className="py-4 px-7 focus:bg-[#2a2a2a] focus:text-white border-btm">
               <Settings className="mr-5 h-4 w-4" /> 
-               Manage account
+                <Link onClick={() => {
+                      navigate('/manage-user')
+                      navigate(0)
+                  }}>
+                      Manage account
+                  </Link>
             </DropdownMenuItem>
             
             <DropdownMenuItem className="py-4 px-7 focus:bg-[#2a2a2a] focus:text-white border-btm">
@@ -85,7 +103,7 @@ export default function User() {
                      navigate(0)
                   }}
                 >
-                  My Jobs
+                  My {isCandidate}
                 </Link>
             </DropdownMenuItem>
 

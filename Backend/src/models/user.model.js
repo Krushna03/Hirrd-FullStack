@@ -36,14 +36,7 @@ const userSchema = new mongoose.Schema({
          ref: "Job" 
       }
     ],
-   //  AppliedJobs: [
-   //    {
-   //       type: Schema.Types.ObjectId,
-   //       ref: "Application"
-   //    }
-   //  ]
-    
-
+ 
 }, {timestamps: true})
 
 

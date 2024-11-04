@@ -40,7 +40,9 @@ const PostJob = () => {
 
   const getCompanies = async () => {
      try {
-      const response = await axios.get("/api/v1/company/getCompanies")
+      const response = await axios.get("https://hirrd-backend.vercel.app/api/v1/company/getCompanies", {
+        withCredentials: true 
+    })
 
       if (response) {
         setCompanies(response.data?.data)
@@ -54,7 +56,9 @@ const PostJob = () => {
   const onSubmit = async (data) => {
     setloading(true)
     try {
-      const response = await axios.post('/api/v1/job/createJob', data)
+      const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/job/createJob', data, {
+        withCredentials: true 
+    })
   
       if (response) {
          dispatch(createJOB({ jobData: response.data }))

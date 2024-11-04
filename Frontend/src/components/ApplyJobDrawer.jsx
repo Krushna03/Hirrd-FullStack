@@ -11,64 +11,96 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 
 
-export function ApplyJobDrawer({ user, job, fetchJob, applied = false }) {
+export function ApplyJobDrawer({ user, job, fetchJob, applied = false, onApplicationSubmit }) {
   
   const { register, handleSubmit, control, formState: { errors }, reset,} = useForm();
   const [loading, setLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate()
   const jobID = job?._id
   const userID = user.data?._id
   const name = user.data?.username;
 
+  const onSubmit = async (data) => {
+    setLoading(true);
 
-  // const {
-  //   loading: loadingApply,
-  //   error: errorApply,
-  //   fn: fnApply,
-  // } = UseFetch(applyToJob);
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (data.resume[0].size > maxSize) {
+        setError('File size should not exceed 5MB');
+        setLoading(false);
+        toast.error('File size should not exceed 5MB');
+        return;
+    }
 
-  // const onSubmit = (data) => {
-  //   fnApply({
-  //     ...data,
-  //     job_id: job.id,
-  //     candidate_id: user.id,
-  //     name: user.fullName,
-  //     status: "applied",
-  //     resume: data.resume[0],
-  //   }).then(() => {
-  //     fetchJob();
-  //     reset();
-  //   });
-  // };
-   
+    const allowedTypes = [ 
+      'application/pdf', 
+      'application/msword',   
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+    ]
 
-   const onSubmit = async (data) => {
-    setLoading(true)
-    try {
-      const formData = new FormData();
-      formData.append('name', name);                     
-      formData.append('experience', data.experience);
-      formData.append('skills', data.skills);
-      formData.append('education', data.education);
-      formData.append('resume', data.resume[0]);    
-      formData.append('jobID', jobID)  
-      formData.append('userID', userID)
+    if (!allowedTypes.includes(data.resume[0].type)) {
+      setError('Please upload a valid file (PDF, DOC, or DOCX)');
+      setLoading(false);
+      toast.error('Invalid file type');
+      return;
+  }
 
-      const response = await axios.post('/api/v1/application/createApplication',formData)
-      if (response) {
-        console.log(response);
-        toast.success("Job created successfully!")
-        navigate(`/jobs/${jobID}`)
+  const formData = new FormData();
+  formData.append("name", name);
+      formData.append("experience", data.experience);
+      formData.append("skills", data.skills);
+      formData.append("education", data.education);
+  
+      if (data.resume && data.resume[0]) {
+        formData.append("resume", data.resume[0]);
+      } else {
+        toast.error("Please upload a resume file.");
+        setLoading(false);
+        return
       }
-    } catch (error) {
-      console.log(error, "Error applying to the job");
+  
+      formData.append("jobID", jobID);
+      formData.append("userID", userID);
+      
+    try {
+      const response = await axios.post("https://hirrd-backend.vercel.app/api/v1/application/createApplication",formData,
+        {
+          headers: { 
+            "Content-Type": "multipart/form-data" 
+          },
+          withCredentials: true,
+        }
+      );
+  
+      if (response.data) {
+        toast.success("Job application submitted successfully!");
+        reset()
+        setIsOpen(false);
+        if (onApplicationSubmit) {
+          onApplicationSubmit(response.data.data);
+        }
+        setTimeout(() => {
+          navigate(`/jobs/${jobID}`);
+        }, 2000);
+      } 
+      else {
+        console.log("Unexpected response:", response);
+      }
+    } 
+     catch (error) {
+      console.error("Error applying to the job:", error?.response || error);
+      toast.error("Failed to apply for the job. Please try again.");
+    } 
+     finally {
+      setLoading(false);
     }
-    finally {
-       setLoading(false)
-    }
-   }
+  };
+  
 
   return (
+    <>
+    <ToastContainer position="top-right" autoClose={3000} theme='dark'/>
+
     <Drawer open={applied ? false : undefined}>
       <DrawerTrigger asChild>
         <Button
@@ -139,7 +171,7 @@ export function ApplyJobDrawer({ user, job, fetchJob, applied = false }) {
             accept=".pdf, .doc, .docx"
             className="flex-1 file:text-gray-500"
             {...register("resume")}
-          />
+            />
           {errors.resume && (
             <p className="text-red-500">{errors.resume.message}</p>
           )}
@@ -159,5 +191,6 @@ export function ApplyJobDrawer({ user, job, fetchJob, applied = false }) {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  </>
   );
 }

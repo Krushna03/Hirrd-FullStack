@@ -11,39 +11,67 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const AddCompanyDrawer = () => {
 
-  const { register, handleSubmit, reset } = useForm()
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
 
   const onsubmit = async (data) => {
     setLoading(true);
+    setError('');
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (data.logo[0].size > maxSize) {
+        setError('File size should not exceed 5MB');
+        setLoading(false);
+        toast.error('File size should not exceed 5MB');
+        return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(data.logo[0].type)) {
+        setError('Please upload a valid image file (JPEG, PNG, GIF, or WEBP)');
+        setLoading(false);
+        toast.error('Invalid file type');
+        return;
+    }
 
     const formData = new FormData();
-    formData.append("name", data.name)
-    formData.append("logo_url", data.logo[0])
+    formData.append("name", data.name);
+    formData.append("logo_url", data.logo[0]);
 
-     try {
-      const response = await axios.post('api/v1/company/newCompany', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+    try {
+        const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/company/newCompany',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            }
+        );
+
+        if (response.data) {
+            toast.success("Company added successfully!");
+            reset();
         }
-      })
-
-      if (response) {
-        toast.success("Company added successfully!")
-        reset();
-      }
-    } 
-    catch (error) {
-      const errorMsg = error.response?.data?.message || "Error while adding the company!";
-      setError(errorMsg);
-      toast.error(errorMsg)
+    } catch (error) {
+        let errorMsg = "Error while adding the company!";
+        
+        if (error.response?.data?.message) {
+            errorMsg = error.response.data.message;
+        } else if (error.code === 'ECONNABORTED') {
+            errorMsg = 'Upload timed out. Please try again.';
+        } else if (!navigator.onLine) {
+            errorMsg = 'No internet connection.';
+        }
+        
+        setError(errorMsg);
+        toast.error(errorMsg);
+    } finally {
+        setLoading(false);
     }
-    finally {
-      setLoading(false)
-     }
-  }
+};
 
   return (
     <>
@@ -63,18 +91,24 @@ const AddCompanyDrawer = () => {
 
           <form className="flex gap-2 p-4 pb-0">
             {/* Company Name */}
-            <Input 
-              placeholder="Company name" 
-              {...register("name")} 
+            <Input
+              placeholder="Company name"
+              {...register("name", { required: "Company name is required" })}
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
 
             {/* Company Logo */}
             <Input
               type="file"
               accept="image/*"
-              className=" file:text-gray-500"
-              {...register("logo")}
+              className="file:text-gray-500"
+              {...register("logo", { required: "Company logo is required" })}
             />
+            {errors.logo && (
+                <p className="text-red-500 text-sm">{errors.logo.message}</p>
+            )}
 
             {/* Add Button */}
             <Button

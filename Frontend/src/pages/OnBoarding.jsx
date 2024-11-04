@@ -17,7 +17,9 @@ const Onboarding = () => {
     setIsLoading(true)
       try {
         if (authStatus) {
-          const response = await axios.patch('/api/v1/users/updateUserRole', {role})
+          const response = await axios.patch('https://hirrd-backend.vercel.app/api/v1/users/updateUserRole', {role},{
+            withCredentials: true 
+        })
   
           if (response?.data) {
             dispatch(login({ userData: response.data }))

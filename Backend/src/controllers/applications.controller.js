@@ -6,59 +6,39 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 
-const createApplication = async ( req, res) => {
-     const {name, experience, skills, education, jobID, userID} = req.body
+const createApplication = async (req, res) => {
+    const { name, experience, skills, education, jobID, userID } = req.body;
 
-     if (!name) {
-      throw new ApiError(400, "name is not provided")
-     }
-     if (!experience) {
-      throw new ApiError(400, "experience is not provided")
-     }
-     if (!skills) {
-      throw new ApiError(400, "skills is not provided")
-     }
-     if (!education) {
-      throw new ApiError(400, "education is not provided")
-     }
-     if (!isValidObjectId(jobID)) {
-      throw new ApiError(400, "jobID is not provided")
-     }
-     if (!isValidObjectId(userID)) {
-      throw new ApiError(400, "userID is not provided")
-     }
+    if (!name) throw new ApiError(400, "name is not provided");
+    if (!experience) throw new ApiError(400, "experience is not provided");
+    if (!skills) throw new ApiError(400, "skills is not provided");
+    if (!education) throw new ApiError(400, "education is not provided");
+    if (!isValidObjectId(jobID)) throw new ApiError(400, "jobID is not provided");
+    if (!isValidObjectId(userID)) throw new ApiError(400, "userID is not provided");
 
-     const resumeLocalPath = req.file;
+    if (!req.file) throw new ApiError(400, "resume is not provided");
 
-     if (!resumeLocalPath) {
-      throw new ApiError(400, "resumeLocalPath is not provided")
-     }
+    const resume = await uploadPDFOnCloudinary(req.file.buffer);
 
-     const resume = await uploadPDFOnCloudinary(resumeLocalPath)
+    if (!resume) throw new ApiError(400, "Failed to upload resume");
 
-     if (!resume) {
-       throw new ApiError(400, "resume is not provided")
-     }
+    const applied = await Application.create({
+      name,
+      skills,
+      experience,
+      education,
+      resume: resume.url,
+      job_id: jobID,
+      candidate_id: userID,
+    });
 
-     const applied = await Application.create({
-         name,
-         skills,
-         experience,
-         education, 
-         resume: resume?.url,
-         job_id: jobID,
-         candidate_id: userID
-     })
-     
-     const result = await Application.findById(applied._id).select("-accessToken -refreshToken");
+    const result = await Application.findById(applied._id).select("-accessToken -refreshToken");
 
-     if (!result) {
-       throw new ApiError(400, "applied not working")
-     }
+    if (!result) throw new ApiError(400, "Application not created");
 
-    return res.status(201)
-               .json(new ApiResponse(200, result, "Applied to Job successfully"))
-}
+    return res.status(201).json(new ApiResponse(200, result, "Applied to Job successfully"));
+};
+
 
 
 
@@ -117,17 +97,17 @@ const getAppliedJobs = async (req, res) => {
 
 
 const changeApplicationStatus = async (req, res) => {
-     const { jobID } = req.query;
-     const { status } = req.query;
+     const { applicationID, status } = req.body;
 
-     if (!isValidObjectId(jobID)) {
-      throw new ApiError(400, "jobID not found");
+     if (!isValidObjectId(applicationID)) {
+      throw new ApiError(400, "applicationID not found");
      }
      if (!status) {
        throw new ApiError(400, "status not found");
      }
 
-     const application = await Application.findOneAndUpdate({job_id: jobID}, 
+     const application = await Application.findByIdAndUpdate(
+         applicationID, 
         { 
            $set: {
              status: status

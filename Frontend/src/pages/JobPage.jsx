@@ -24,7 +24,9 @@ const JobPage = () => {
 
   const getAppications = async () => {
     try {
-      const response = await axios.get(`/api/v1/application/getApplications?jobId=${jobId}`);
+      const response = await axios.get(`https://hirrd-backend.vercel.app/api/v1/application/getApplications/?jobId=${jobId}`, {
+        withCredentials: true
+      });
   
       if (response) {
         setApplications(response?.data?.data);
@@ -39,8 +41,11 @@ const JobPage = () => {
     setStatusLoading(true)
     const iOpen = value === "open"; 
     try {
-      const updateJobStatus = await axios.patch(`/api/v1/job/getJobById/${jobId}/updateJobStatus`, {iOpen});
-      
+      const updateJobStatus = await axios.patch(`https://hirrd-backend.vercel.app/api/v1/job/getJobById/${jobId}/updateJobStatus`, 
+        { iOpen },
+        { withCredentials: true}, 
+      );
+
       setJob(prevJob => ({
         ...prevJob, iOpen: iOpen
       }))
@@ -58,7 +63,11 @@ const JobPage = () => {
     const fetchJob = async () => {
       setLoading(true)
       try {
-        const job = await axios.get(`/api/v1/job/getJobById/${jobId}`)
+        const job = await axios.get('https://hirrd-backend.vercel.app/api/v1/job/getJobById', {
+          params: { jobId },
+          withCredentials: true
+      });
+      
         if (job) {
           setJob(job.data?.data)
         }
@@ -73,6 +82,11 @@ const JobPage = () => {
     fetchJob()
     getAppications()
   }, [jobId])
+
+
+  const handleNewApplication = (newApplication) => {
+    setApplications(prevApplications => [...prevApplications, newApplication]);
+  };
   
 
   if (loading) {
@@ -150,6 +164,7 @@ const JobPage = () => {
           job={job}
           user={user}
           applied={applications?.find((app) => app.candidate_id === user?.data?._id)} 
+          onApplicationSubmit={handleNewApplication}
         />
       )} 
       

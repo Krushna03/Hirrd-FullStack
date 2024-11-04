@@ -17,16 +17,17 @@ const createComapny = async (req, res) => {
       throw new ApiError(400, "Company Already exists")
     }
   
-    const logoLocalPath = req.file;
+    const logoFile = req.file;
 
-    if (!logoLocalPath) {
-      throw new ApiError(400, "logoLocalPath is not available")
+    if (!logoFile) {
+      throw new ApiError(400, "logoFile is not available")
     }
 
-    const logo_url = await uploadOnCloudinary(logoLocalPath)
+
+    const logo_url = await uploadOnCloudinary(logoFile)
 
     if (!logo_url) {
-      throw new ApiError(400, "logo_url is not available")
+      throw new ApiError(400, "logo_url is not available || Error uploading logo to Cloudinary.")
     }
 
     const company = await Company.create({
@@ -35,7 +36,7 @@ const createComapny = async (req, res) => {
     })
 
     if (!company) {
-      throw new ApiError(400, "logo_url is not available")
+      throw new ApiError(400, "company is not Created")
     }
 
     return res.status(201)

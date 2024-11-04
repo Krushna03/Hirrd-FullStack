@@ -51,7 +51,7 @@ const getJobs = async (req, res) => {
 
 
 const getJobById = async (req, res) => {
-    const { jobId } = req.params;
+    const { jobId } = req.query;
 
     if (!isValidObjectId(jobId)) {
       throw new ApiError(400, "jobId is not provided")
@@ -70,35 +70,43 @@ const getJobById = async (req, res) => {
 
 
 const getJobsBySearch = async (req, res) => {
-    const {title, location, company_Name} = req.query
+  const { title, location, company_Name } = req.query;
 
-    if (!title || !location || !company_Name) {
-      throw new ApiError(404, "title || location || company_Name is not provided")
+  if (!title && !location && !company_Name) {
+    throw new ApiError(400, "At least one of title, location, or company_Name must be provided");
+  }
+
+  let company_id;
+  if (company_Name) {
+    const company = await Company.findOne({ name: company_Name });
+    if (!company) {
+      throw new ApiError(404, "Company not found");
     }
+    company_id = company._id;
+  }
 
-    //  if (!title) {
-    //    throw new ApiError(404, "title is not provided")
-    //  }
-    //  if (!location) {
-    //    throw new ApiError(404, "location is not provided")
-    //  }
-    //  if (!company_Name) {
-    //    throw new ApiError(404, "company_Name is not provided")
-    //  }
+  const query = {
+    $or: []
+  };
 
-    const company = await Company.findOne({ name: company_Name})
-    const company_id = company._id
+  if (title) {
+    query.$or.push({ title });
+  }
+  if (location) {
+    query.$or.push({ location });
+  }
+  if (company_id) {
+    query.$or.push({ company_id });
+  }
 
-    const jobs = await Job.find({
-        $and: [ {title}, {location}, {company_id} ]
-    }).populate("company_id", "logo_url")
+  const jobs = await Job.find(query).populate("company_id", "logo_url");
 
-    if (!jobs) {
-      throw new ApiError(404, "jobs not found")
-    }
+  if (jobs.length === 0) {
+    throw new ApiError(404, "Jobs not found");
+  }
 
-    return res.status(201)
-              .json(new ApiResponse(200, jobs, "Jobs fetched by search successfully"))
+  return res.status(200)
+            .json(new ApiResponse(200, jobs, "Jobs fetched by search successfully"));
 }
 
 
