@@ -29,11 +29,15 @@ export default function User() {
   const avatarColor = user?.data?.role === 'candidate' ? 'bg-blue-700' : 'bg-red-700';
   const isCandidate = user?.data?.role === 'candidate' ? 'Applications' : 'Jobs'
  
-  const token = localStorage.getItem("token");
-
+  
   const logoutHandler = async () => {
     setLoading(true)
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("Token not found at User component to logout");
+      }
+
       const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/users/logout', 
         {
           headers: { Authorization: `Bearer ${JSON.parse(token)}`},
