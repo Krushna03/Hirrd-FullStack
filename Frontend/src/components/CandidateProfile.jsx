@@ -105,7 +105,7 @@ const CandidateProfile = () => {
              {/* <Edit size={15} className='mt-14'/> */}
           </div>
         
-          <div className="pt-5 flex justify-between lg:px-5 gap-5">
+          <div className="pt-5 flex justify-between lg:px-5 gap-5 flex-wrap">
             <div className="space-y-1">
               <p className="text-base text-gray-400 flex gap-1"><User size={22}/>Name</p>
               <p className="font-semibold text-xl flex gap-3 text-gray-100">
@@ -115,7 +115,7 @@ const CandidateProfile = () => {
             </div>
 
             <div className="space-y-1">
-              <p className="text-base text-gray-400 flex gap-1"><Mail size={21}/> Email</p>
+              <p className="text-base text-gray-400 flex gap-1"><Mail size={22}/> Email</p>
               <p className="font-semibold text-gray-100 text-lg">{user.data?.email}</p>
             </div>
           </div>

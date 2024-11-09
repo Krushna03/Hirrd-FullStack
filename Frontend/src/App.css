@@ -30,8 +30,8 @@
 width: 100%;
 margin-left: auto;
 margin-right: auto;
-padding-left: 2rem;  /* Adjust for padding */
-padding-right: 2rem; /* Adjust for padding */
+padding-left: 15px; 
+padding-right: 15px;
 }
 
 @media (min-width: 640px) {

@@ -87,8 +87,9 @@ const PostJob = () => {
   return (
     <>
        <ToastContainer position="top-right" autoClose={3000} theme='dark'/>
-    <div>
-      <h1 className="gradient-title font-extrabold text-5xl sm:text-7xl text-center pb-8">
+
+    <div className="lg:mx-7">
+      <h1 className="gradient-title font-extrabold text-5xl sm:text-7xl text-center pb-2 lg:pb-8 mt-6 lg:mt-0">
         Post a Job
       </h1>
       <form

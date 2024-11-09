@@ -68,9 +68,20 @@ const Header = () => {
           {
             userData && userData?.data?.role === "recruiter" && (
               <Link to='/post-job'>
-                <Button variant='destructive' className="rounded-full mr-3">
+                <Button 
+                  variant='destructive' 
+                  className="rounded-full sm:hidden mt-1 lg:mr-3 mr-1"
+                  size="icon"
+                >
+                  <PenBox size={20} />
+                </Button>
+
+                <Button 
+                  variant='destructive' 
+                  className="rounded-full hidden sm:flex items-center mt-1 mr-3"
+                >
                   <PenBox size={20} className='mr-1'/>
-                      Post a Job
+                  Post a Job
                 </Button>
               </Link>
             )

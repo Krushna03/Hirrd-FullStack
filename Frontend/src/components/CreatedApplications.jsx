@@ -44,7 +44,7 @@ const CreatedApplications = () => {
 
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 lg:mx-8">
       {applications && applications.length > 0 ? (
         applications.map((application) => (
           <ApplicationCard

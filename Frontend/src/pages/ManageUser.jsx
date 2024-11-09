@@ -17,7 +17,7 @@ const ManageUser = () => {
 
   return (
     <div>
-      <h1 className="gradient-title font-extrabold text-6xl sm:text-6xl text-center pb-7">
+      <h1 className="gradient-title font-extrabold md:text-6xl text-3xl text-center pb-7 mt-3">
         {user?.data?.role === "candidate"
           ? "Manage Candidate"
           : "Manage Recruiter"
