@@ -40,7 +40,7 @@ export default function RegistrationCard({ setShowRegister, setShowSignin }) {
   };
 
   return (
-      <Card className="sign-up-animate w-full max-w-md bg-black text-white border border-gray-800 rounded-xl shadow-2xl">
+      <Card className="sign-up-animate w-full max-w-md bg-black text-white border border-gray-800 rounded-xl shadow-2xl mx-7">
        
       <form onSubmit={handleSubmit(submit)}>
         <CardHeader className="text-center space-y-1">

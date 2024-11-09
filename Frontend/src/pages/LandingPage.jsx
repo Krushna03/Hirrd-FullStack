@@ -34,7 +34,7 @@ const LandingPage = () => {
 
       <div className='flex gap-6 justify-center'>
         <Link to='/jobs'>
-           <Button variant="default" size="xl">
+           <Button variant="default" size="xl" className='find-job-button'>
               Find Jobs
            </Button>  
         </Link>
@@ -42,7 +42,7 @@ const LandingPage = () => {
         {
          userData?.data?.role === 'recruiter' && (
           <Link to='/post-job'>
-            <Button variant="destructive" size="xl">
+            <Button variant="destructive" size="xl" className='find-job-button'>
                 Post a Jobs
             </Button>  
           </Link>
@@ -51,10 +51,10 @@ const LandingPage = () => {
         {
          authStatus === false && (
           <Link to='/post-job'>
-            <Button variant="destructive" size="xl">
+            <Button variant="destructive" size="xl" className='find-job-button'>
                 Post a Jobs
             </Button>  
-          </Link>
+          </Link>                    
           )
         }
       </div>

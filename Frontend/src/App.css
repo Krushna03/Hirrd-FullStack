@@ -92,3 +92,13 @@ padding-right: 2rem; /* Adjust for padding */
 .border-btm {
   border-bottom: 1px solid rgb(45, 44, 44);
 }
+
+
+@media (max-width: 640px) {
+  .find-job-button {
+    height: 20px;
+    width: 85px;
+    padding: 5px;
+    font-size: 14px;
+  }
+}

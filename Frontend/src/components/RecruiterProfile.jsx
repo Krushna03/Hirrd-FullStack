@@ -58,10 +58,14 @@ const RecruiterProfile = () => {
   const logoutHandler = async () => {
     setLoading(true)
     try {
-      const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/users/logout', {
+      const response = await axios.post('https://hirrd-backend.vercel.app/api/v1/users/logout', 
+        {
         headers: { Authorization: `Bearer ${JSON.parse(token)}` },
-        withCredentials: true,
-    })
+        },
+        {
+          withCredentials: true,
+        }
+     )
 
       if (response.status === 200) {
         dispatch(logout())

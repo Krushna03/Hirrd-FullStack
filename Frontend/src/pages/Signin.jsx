@@ -40,7 +40,10 @@ export default function SignIn({ setShowRegister, setShowSignin }) {
   }
 
   return (
-      <Card className="sign-up-animate w-full max-w-md bg-black text-white border border-gray-800 rounded-xl shadow-2xl">
+
+    // <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+
+      <Card className="sign-up-animate w-full max-w-md bg-black text-white border border-gray-800 rounded-xl shadow-2xl mx-7">
         
         <form onSubmit={handleSubmit(signIn)}>
           <CardHeader className="text-center space-y-1">
@@ -137,5 +140,6 @@ export default function SignIn({ setShowRegister, setShowSignin }) {
           </CardFooter>
         </form>
       </Card>
+    // </div>
   )
 }

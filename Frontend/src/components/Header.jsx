@@ -30,19 +30,7 @@ const Header = () => {
        setShowSignin(true) 
     }
   }, [search])
-
-
-  // const logoutHandler = async () => {
-  //   try {
-  //     const response = await axios.post('/api/v1/users/logout')
-  //     if (response) {
-  //       dispatch(logout())
-  //     }
-  //   } catch (error) {
-  //     console.log("logout error", error);
-  //   }
-  // }
-
+  
 
   const buttons = [
     {
@@ -77,19 +65,6 @@ const Header = () => {
             ))
           }
 
-          {/* {
-            authStatus && (
-              <Link to={'/'}>
-                <Button 
-                  variant="outline"
-                  onClick={logoutHandler}
-                  >
-                logout
-                </Button>                 
-              </Link>
-            )
-          } */}
-
           {
             userData && userData?.data?.role === "recruiter" && (
               <Link to='/post-job'>
@@ -114,7 +89,7 @@ const Header = () => {
        {
          ShowRegister && !authStatus && (
            <div onClick={handleOverLayClick}
-              className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-80'
+              className='fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80'
            >
              <RegistrationCard setShowRegister={setShowRegister} setShowSignin={setShowSignin}/>
            </div>
@@ -124,7 +99,7 @@ const Header = () => {
        {
          ShowSignin && !authStatus && (
            <div onClick={handleOverLayClick}
-              className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-80'
+              className='fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80'
            >
              <SignIn setShowRegister={setShowRegister} setShowSignin={setShowSignin}/>
            </div>
