@@ -1,7 +1,7 @@
 import Header from '@/components/Header'
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Outlet } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Outlet, Link } from 'react-router-dom'
 import axios from 'axios'
 import { logout, login } from '@/context/authSlice'
 import { BarLoader } from 'react-spinners'
@@ -44,6 +44,13 @@ const AppLayout = () => {
     }
   }, [dispatch]);
 
+
+  const github = () => {
+     const link = document.createElement('a')
+     link.href = 'https://github.com/Krushna03'
+     link.target = '_blank'
+     link.click()
+  }
   
   if (loading) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
@@ -58,7 +65,10 @@ const AppLayout = () => {
         <Outlet />
       </main>
       <div className="p-10 text-center bg-gray-800 mt-10">
-        Made with ❤️ by Dev Krushna Sakahare
+        Made with ❤️ by Dev  
+        <p onClick={github} className='cursor-pointer font-semibold font-sans hover:underline'>
+          Krushna Sakahare
+        </p>
       </div>
     </div>
   );

@@ -17,9 +17,10 @@ const Onboarding = () => {
     setIsLoading(true)
       try {
         if (authStatus) {
-          const response = await axios.patch('https://hirrd-backend.vercel.app/api/v1/users/updateUserRole', {role},{
-            withCredentials: true 
-        })
+          const response = await axios.patch('https://hirrd-backend.vercel.app/api/v1/users/updateUserRole', 
+            { role },
+            { withCredentials: true }
+          )
   
           if (response?.data) {
             dispatch(login({ userData: response.data }))
@@ -36,7 +37,6 @@ const Onboarding = () => {
   }
 
   const navigateUser = (role) => {
-    console.log(role);
       if (role === "recruiter") {
         navigate('/post-job')
       }
