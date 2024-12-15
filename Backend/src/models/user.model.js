@@ -27,9 +27,17 @@ const userSchema = new mongoose.Schema({
       enum: ["candidate", "recruiter"],
       default: null,
     },
+    isOnboardingComplete: {
+      type: Boolean,
+      default: false
+    },
     refreshToken: {
       type: String
     },
+    googleId: { 
+      type: String, 
+      unique: true 
+   },
     savedJobs: [
       { 
          type: Schema.Types.ObjectId, 

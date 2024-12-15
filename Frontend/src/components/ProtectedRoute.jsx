@@ -49,12 +49,12 @@ const ProtectedRoute = ({ children }) => {
   }
 
 
-  if (authStatus && !userData?.data?.role && pathname !== '/onboarding') {
+  if (authStatus && (!userData?.data?.role || !userData?.data?.isOnboardingComplete) && pathname !== '/onboarding') {
     return <Navigate to="/onboarding" />;
   }
 
 
-  if (authStatus && userData?.data?.role && pathname === '/onboarding') {
+  if (authStatus && userData?.data?.role && userData?.data?.isOnboardingComplete && pathname === '/onboarding') {
     return <Navigate to="/" />;
   }
 

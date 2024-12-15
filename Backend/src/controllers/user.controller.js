@@ -1,10 +1,10 @@
-import {SavedJob} from '../models/SavedJobs.model.js'
 import { User } from '../models/user.model.js'
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { Application } from '../models/applications.js'
 import { isValidObjectId } from 'mongoose'
 import { Job } from '../models/jobs.model.js'
+import { OAuth2Client } from 'google-auth-library';
 
 
 const generateAccessAndRefreshTokens = async (userID) => {
@@ -229,7 +229,8 @@ const addUserRole = async (req, res) => {
     const updatedRole = await User.findByIdAndUpdate(req.user?._id, 
       {
          $set: {
-            role: role
+            role: role,
+            isOnboardingComplete: true
          }
       },
       {
@@ -244,4 +245,68 @@ const addUserRole = async (req, res) => {
 
 
 
-export { registerUser, signInUser, logoutUser, getCurrentUser, getUserDeatils,addUserRole, getRecruiterDetails }
+const googleLogin = async (req, res) => {
+   const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+   try {
+      const { token } = req.body;
+      
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      
+      const payload = ticket.getPayload();
+      const googleId = payload['sub'];
+      const email = payload['email'];
+      const username = payload['name'];
+  
+      let user = await User.findOne({ googleId });
+      
+      if (!user) {
+        user = await User.create({
+          username,
+          email,
+          googleId,
+          password: Math.random().toString(36).slice(-8),
+          isOnboardingComplete: false
+        });
+      }
+  
+      const accessToken = user.generateAccessToken();
+      const refreshToken = user.generateRefreshToken();
+  
+      user.refreshToken = refreshToken;
+      await user.save({ validateBeforeSave: false });
+  
+      const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      };
+  
+      return res.status(200)
+        .cookie('accessToken', accessToken, options)
+        .cookie('refreshToken', refreshToken, options)
+        .json({
+          accessToken,
+          refreshToken,
+          user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email
+          }
+        });
+  
+    } catch (error) {
+      console.error('Google login error:', error);
+      return res.status(500).json({ 
+        message: 'Google login failed', 
+        error: error.message 
+      });
+    }
+
+}
+
+
+export { registerUser, signInUser, logoutUser, getCurrentUser, getUserDeatils,addUserRole, getRecruiterDetails, googleLogin }

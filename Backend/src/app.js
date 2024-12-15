@@ -1,12 +1,16 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from "cors"
+import passport from 'passport'
+import './passpord.config.js'
+import session from 'express-session'
+
 
 const app = express()
 
 
 app.use(cors({
-    origin: 'https://frontend-hirrd.vercel.app', 
+    origin: 'https://frontend-hirrd.vercel.app' , 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
     allowedHeaders: [
         'Content-Type', 
@@ -20,6 +24,16 @@ app.use(cors({
     exposedHeaders: ['Set-Cookie']  
 }));
 
+
+app.use(session({
+      secret: process.env.GOOGLE_CLIENT_SECRET, 
+      resave: false,
+      saveUninitialized: true,
+      cookie: { secure: false },
+    })
+  );
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 
